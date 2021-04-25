@@ -1,89 +1,113 @@
-import pigpio
-import time
+Python 3.9.1 (tags/v3.9.1:1e5d33e, Dec  7 2020, 17:08:21) [MSC v.1927 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license()" for more information.
+>>> import RPi.GPIO as GPIO          
+from time import sleep
 
-class Motor(object):
-    def __init__(self):
-        pigpio.exceptions = False
-        self.pi = pigpio.pi()
-        if not self.pi.connected:
-            exit()
-        self.left_0 = 4
-        self.left_1 = 18
-        self.left_en = 23
-        self.right_0 = 12
-        self.right_1 = 13
-        self.right_en = 24
+in1 = 24
+in2 = 23
+ena = 25
+in3 = 27
+in4 = 17
+enb = 22
+temp1=1
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(in1,GPIO.OUT)
+GPIO.setup(in2,GPIO.OUT)
+GPIO.setup(ena,GPIO.OUT)
+GPIO.setup(in3,GPIO.OUT)
+GPIO.setup(in4,GPIO.OUT)
+GPIO.setup(enb,GPIO.OUT)
+GPIO.output(in1,GPIO.LOW)
+GPIO.output(in2,GPIO.LOW)
+GPIO.output(in3,GPIO.LOW)
+GPIO.output(in4,GPIO.LOW)
+p=GPIO.PWM(ena,1000)
+p=GPIO.PWM(enb,1000)
+p.start(25)
+print("\n")
+print("The default speed & direction of motor is LOW & Forward.....")
+print("r-run s-stop f-forward b-backward l-low m-medium h-high e-exit")
+print("\n")    
 
-        self.speed = 200
+while(1):
 
-        self.xbuff = ''
-
-    def stop(self):
-        print("stop")
-        self.pi.write(self.left_en, 0)
-        self.pi.write(self.left_0, 0)
-        self.pi.write(self.left_1, 0)
-        self.pi.write(self.right_en, 0)
-        self.pi.write(self.right_0, 0)
-        self.pi.write(self.right_1, 0)
-
-    def forward(self):
-        print("forward")
-        self.pi.write(self.left_en, 1)
-        self.pi.set_PWM_dutycycle(self.left_0,  self.speed)
-        self.pi.write(self.left_1, 0)
-
-        self.pi.write(self.right_en, 1)
-        self.pi.set_PWM_dutycycle(self.right_0,  self.speed)
-        self.pi.write(self.right_1, 0)
-        
-    def backward(self):
-        print("back")
-        self.pi.write(self.left_en, 1)
-        self.pi.write(self.left_0, 0)
-        self.pi.set_PWM_dutycycle(self.left_1,  self.speed)
-
-        self.pi.write(self.right_en, 1)
-        self.pi.write(self.right_0, 0)
-        self.pi.set_PWM_dutycycle(self.right_1,  self.speed)
-        
-    def left(self):
-        print("left")
-        self.pi.write(self.right_en, 1)
-        self.pi.set_PWM_dutycycle(self.right_0,  self.speed)
-        self.pi.write(self.right_1, 0)
-        
-        self.pi.write(self.left_en, 1)
-        self.pi.write(self.left_0, 0)
-        self.pi.set_PWM_dutycycle(self.left_1,  self.speed)
-
-    def right(self):
-        print("right")
-        self.pi.write(self.left_en, 1)
-        self.pi.set_PWM_dutycycle(self.left_0,  self.speed)
-        self.pi.write(self.left_1, 0)
-
-        self.pi.write(self.right_en, 1)
-        self.pi.write(self.right_0, 0)
-        self.pi.set_PWM_dutycycle(self.right_1,  self.speed)
-        
-    def control(self,x):
-        if x == 'forward':
-            self.forward()
-            time.sleep(0.1)
-            self.stop()
-        elif x == 'backward':
-            self.backward()
-            time.sleep(0.1)
-            self.stop()
-        elif x == 'left':
-            self.left()
-            time.sleep(0.1)
-            self.stop()
-        elif x == 'right':
-            self.right()
-            time.sleep(0.1)
-            self.stop()
+    x=input()
+    
+    if x=='r':
+        print("run")
+        if(temp1==1):
+         GPIO.output(in1,GPIO.HIGH)
+         GPIO.output(in2,GPIO.LOW)
+         GPIO.output(in3,GPIO.HIGH)
+         GPIO.output(in4,GPIO.LOW)
+         print("forward")
+         x='z'
         else:
-            self.stop() 
+         GPIO.output(in1,GPIO.LOW)
+         GPIO.output(in2,GPIO.HIGH)
+         GPIO.output(in3,GPIO.LOW)
+         GPIO.output(in4,GPIO.HIGH)
+         print("backward")
+         x='z'
 
+
+    elif x=='s':
+        print("stop")
+        GPIO.output(in1,GPIO.LOW)
+        GPIO.output(in2,GPIO.LOW)
+        GPIO.output(in3,GPIO.LOW)
+        GPIO.output(in4,GPIO.LOW)
+        x='z'
+
+    elif x=='f':
+        print("forward")
+        GPIO.output(in1,GPIO.HIGH)
+        GPIO.output(in2,GPIO.LOW)
+        GPIO.output(in3,GPIO.HIGH)
+        GPIO.output(in4,GPIO.LOW)
+        temp1=1
+        x='z'
+
+    elif x=='b':
+        print("backward")
+        GPIO.output(in1,GPIO.LOW)
+        GPIO.output(in2,GPIO.HIGH)
+        GPIO.output(in3,GPIO.LOW)
+        GPIO.output(in4,GPIO.HIGH)
+        temp1=0
+        x='z'
+    elif x=='l':
+        print("left")
+        GPIO.output(in1,GPIO.HIGH)
+        GPIO.output(in2,GPIO.LOW)
+        temp1=1
+        x='z'
+    elif x=='r':
+        print("right")
+        GPIO.output(in3,GPIO.HIGH)
+        GPIO.output(in4,GPIO.LOW)
+        temp1=1
+        x='z'        
+    elif x=='ls':
+        print("low")
+        p.ChangeDutyCycle(25)
+        x='z'
+
+    elif x=='m':
+        print("medium")
+        p.ChangeDutyCycle(50)
+        x='z'
+
+    elif x=='h':
+        print("high")
+        p.ChangeDutyCycle(75)
+        x='z'
+     
+    
+    elif x=='e':
+        GPIO.cleanup()
+        break
+    
+    else:
+        print("<<<  wrong data  >>>")
+        print("please enter the defined data to continue.....")
